@@ -1,35 +1,23 @@
 {% extends "layout.html" %}
 {% block content %}
 <div style="text-align: center;">
-    <div style="position: relative; display: inline-block; cursor: pointer;" onclick="toggleAvInput()">
-        <img src="{{ u.avatar_url if u.avatar_url else 'https://i.imgur.com/6VBx3io.png' }}" class="avatar-img" id="main-avatar">
-        {% if session.user == u.username %}
-        <div style="position: absolute; bottom: 0; right: 0; background: red; border-radius: 50%; width: 30px; height: 30px; line-height: 30px; font-size: 15px;">+</div>
-        {% endif %}
-    </div>
+    <form id="avatar-form" action="/update_avatar" method="POST" enctype="multipart/form-data" style="display: none;">
+        <input type="file" name="avatar_file" id="avatar-input" accept="image/*" onchange="document.getElementById('avatar-form').submit()">
+    </form>
     
-    {% if session.user == u.username %}
-    <div id="av-form" style="display: none; margin-top: 15px;">
-        <form action="/update_avatar" method="POST">
-            <input type="text" name="avatar_url" placeholder="Paste image URL here..." style="width: 250px;">
-            <button type="submit" class="btn" style="width: 100px;">SAVE</button>
-        </form>
+    <div style="position: relative; display: inline-block;">
+        <img src="{{ u.avatar_url if u.avatar_url else 'https://i.imgur.com/6VBx3io.png' }}" 
+             class="avatar-img" 
+             onclick="{% if session.user == u.username %}document.getElementById('avatar-input').click(){% endif %}"
+             title="Click to change photo">
     </div>
-    {% endif %}
 
-    <h1 class="waxues-nick">{{ u.username }}</h1>
-    <p style="color: #444;">{{ u.status }}</p>
+    <h1 style="color:white; margin-top:15px;">{{ u.username }}</h1>
+    <p style="color: #555; font-style: italic;">{{ u.status }}</p>
 </div>
 
-<h3 style="margin-top: 40px;">TRANSFERS</h3>
+<h3 style="margin-top: 50px; border-bottom: 1px solid #222; padding-bottom: 10px;">OPERATOR_DATA</h3>
 {% for p in pastes %}
 <a href="/paste/{{ p.id }}" class="paste-row glow-{{ p.style }}">{{ p.title }}</a>
 {% endfor %}
-
-<script>
-function toggleAvInput() {
-    let el = document.getElementById('av-form');
-    if(el) el.style.display = (el.style.display === 'none') ? 'block' : 'none';
-}
-</script>
 {% endblock %}

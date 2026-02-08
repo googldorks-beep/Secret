@@ -1,14 +1,23 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>INJECT_NEW_DATA</h2>
+<h2>NEW_PASTE_ENTRY</h2>
 <form method="POST">
-    <input type="text" name="t" placeholder="TITLE" required>
-    <textarea name="c" style="height: 300px;" placeholder="CONTENT..." required></textarea>
+    <input type="text" name="t" placeholder="ENTRY TITLE" required>
+    <textarea name="c" style="height: 300px;" placeholder="ENTER CONTENT..." required></textarea>
     <select name="style">
-        <option value="dark-blue">DEFAULT_BLUE</option>
-        <option value="red">NEON_RED</option>
-        {% if session.role == 'Owner' %}<option value="rainbow">VIP_RAINBOW</option>{% endif %}
+        <option value="red">NEON RED</option>
+        <option value="green">MATRIX GREEN</option>
+        <option value="blue">CYBER BLUE</option>
+        <option value="pink">HOT PINK</option>
+        <option value="gold">GOLD VIP</option>
+        <option value="toxic">TOXIC GREEN</option>
+        <option value="orange">BLOOD ORANGE</option>
+        <option value="cyan">ICE CYAN</option>
+        <option value="emerald">EMERALD</option>
+        <option value="crimson">CRIMSON</option>
+        <option value="white">GHOST WHITE</option>
+        <option value="rainbow">CORE RAINBOW</option>
     </select>
-    <button type="submit" class="btn">POST_TO_SYSTEM</button>
+    <button type="submit" class="btn">EXECUTE_UPLOAD</button>
 </form>
 {% endblock %}
