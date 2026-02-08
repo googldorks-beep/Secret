@@ -1,41 +1,40 @@
 import os, hashlib, base64, random
 from flask import Flask, render_template, request, session, redirect, url_for, abort
 
+app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'FINAL_FIX_V360')
+DB_URL = os.environ.get('DATABASE_URL')
+
 try:
     import psycopg2
     from psycopg2.extras import RealDictCursor
 except ImportError:
     pass
 
-app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'SLIM_V350_STABLE')
-DB_URL = os.environ.get('DATABASE_URL')
-
 def get_db():
     if not DB_URL: return None
     try:
-        conn = psycopg2.connect(DB_URL, cursor_factory=RealDictCursor, connect_timeout=5)
-        return conn
+        return psycopg2.connect(DB_URL, cursor_factory=RealDictCursor, connect_timeout=5)
     except: return None
-
-# Функция для получения данных юзера БЕЗ хранения их в сессии (чтобы не раздувать куки)
-def get_current_user():
-    if 'user' not in session: return None
-    conn = get_db(); cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE username=%s", (session['user'],))
-    u = cur.fetchone(); cur.close(); conn.close()
-    return u
 
 @app.context_processor
 def inject_user():
-    return dict(current_user=get_current_user())
+    user_data = None
+    if 'user' in session:
+        conn = get_db()
+        if conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM users WHERE username=%s", (session['user'],))
+            user_data = cur.fetchone()
+            cur.close(); conn.close()
+    return dict(current_user=user_data)
 
 @app.route('/')
 def index():
     conn = get_db(); cur = conn.cursor()
     cur.execute("SELECT * FROM pastes ORDER BY created_at DESC")
     p = cur.fetchall(); cur.close(); conn.close()
-    return render_template('index.html', pastes=p, online=random.randint(5,15))
+    return render_template('index.html', pastes=p, online=random.randint(8,14))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -50,20 +49,7 @@ def login():
             session['user'] = user['username']
             session['role'] = user['role']
             return redirect('/')
-        return "ACCESS_DENIED"
-    return render_template('login.html', online=random.randint(5,15))
-
-@app.route('/update_avatar', methods=['POST'])
-def update_avatar():
-    if 'user' not in session: return redirect('/login')
-    file = request.files.get('avatar_file')
-    if file:
-        img_data = base64.b64encode(file.read()).decode('utf-8')
-        avatar_url = f"data:{file.content_type};base64,{img_data}"
-        conn = get_db(); cur = conn.cursor()
-        cur.execute("UPDATE users SET avatar_url=%s WHERE username=%s", (avatar_url, session['user']))
-        conn.commit(); cur.close(); conn.close()
-    return redirect(f"/profile/{session['user']}")
+    return render_template('login.html', online=random.randint(8,14))
 
 @app.route('/paste/<int:pid>')
 def view_paste(pid):
@@ -74,12 +60,19 @@ def view_paste(pid):
     p = cur.fetchone()
     cur.execute("SELECT * FROM comments WHERE paste_id = %s ORDER BY created_at DESC", (pid,))
     c = cur.fetchall(); cur.close(); conn.close()
-    return render_template('view.html', p=p, comments=c)
+    return render_template('view.html', p=p, comments=c, online=random.randint(8,14))
 
-@app.route('/logout')
-def logout(): session.clear(); return redirect('/')
+@app.route('/add', methods=['GET', 'POST'])
+def add():
+    if 'user' not in session: return redirect('/login')
+    if request.method == 'POST':
+        t, c, s = request.form.get('t'), request.form.get('c'), request.form.get('style')
+        conn = get_db(); cur = conn.cursor()
+        cur.execute("INSERT INTO pastes (sender, title, content, style, views) VALUES (%s,%s,%s,%s,0)", (session['user'], t, c, s))
+        conn.commit(); cur.close(); conn.close()
+        return redirect('/')
+    return render_template('add.html', online=random.randint(8,14))
 
-# Остальные роуты (profile, users, add) теперь должны использовать current_user в шаблонах
 @app.route('/profile/<username>')
 def profile(username):
     conn = get_db(); cur = conn.cursor()
@@ -87,7 +80,10 @@ def profile(username):
     u = cur.fetchone()
     cur.execute("SELECT * FROM pastes WHERE sender=%s ORDER BY created_at DESC", (username,))
     p = cur.fetchall(); cur.close(); conn.close()
-    return render_template('profile.html', u=u, pastes=p)
+    return render_template('profile.html', u=u, pastes=p, online=random.randint(8,14))
+
+@app.route('/logout')
+def logout(): session.clear(); return redirect('/')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
