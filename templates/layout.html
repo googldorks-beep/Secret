@@ -1,36 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>BYTEBIN V170</title>
+    <title>BYTEBIN OMEGA V210</title>
     <style>
-        :root { --red: #ff0000; --dark: #000000; }
-        body { background: var(--dark) url('{{ session.bg }}') no-repeat center center fixed; background-size: cover; color: #fff; font-family: 'Courier New', monospace; margin: 0; }
-        header { background: rgba(0,0,0,0.95); border-bottom: 2px solid var(--red); padding: 40px; text-align: center; box-shadow: 0 0 30px var(--red); }
-        .waxues-nick { background: linear-gradient(90deg, red, orange, yellow, lime, cyan, blue, violet, red); -webkit-background-clip: text; color: transparent; background-size: 200%; animation: r 3s linear infinite; font-weight: bold; }
+        :root { --red: #ff0000; --dark: #000; }
+        body { background: var(--dark) url('{{ session.bg }}') no-repeat center center fixed; background-size: cover; color: #fff; font-family: monospace; margin: 0; }
+        header { background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--red); padding: 30px; text-align: center; }
+        .waxues-nick { background: linear-gradient(90deg, red, yellow, lime, cyan, blue, violet, red); -webkit-background-clip: text; color: transparent; background-size: 200%; animation: r 3s linear infinite; font-weight: bold; }
         @keyframes r { to { background-position: 200%; } }
-        nav { margin-top: 20px; }
-        nav a { color: #555; text-decoration: none; padding: 10px 20px; border: 1px solid transparent; transition: 0.3s; }
-        nav a:hover { color: #fff; border-color: var(--red); box-shadow: 0 0 15px var(--red); }
-        .container { max-width: 1100px; margin: 50px auto; background: rgba(0,0,0,0.9); padding: 40px; border: 1px solid #1a1a1a; backdrop-filter: blur(5px); }
-        input, textarea, select { background: #050505; border: 1px solid #222; color: #fff; padding: 15px; width: 100%; margin-bottom: 20px; box-sizing: border-box; }
-        .btn { background: var(--red); color: #fff; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; letter-spacing: 3px; }
-        .btn:hover { box-shadow: 0 0 20px var(--red); }
-        /* Стили паст */
-        .card { padding: 20px; background: rgba(255,255,255,0.02); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #111; }
-        .glow-rainbow { border-left: 6px solid; border-image: linear-gradient(to bottom, red, orange, yellow, green, blue, violet) 1; box-shadow: 0 0 15px rgba(255,0,255,0.2); }
-        .glow-red { border-left: 6px solid var(--red); }
-        .glow-dark-blue { border-left: 6px solid #001a33; }
+        nav a { color: #666; text-decoration: none; margin: 0 10px; font-weight: bold; text-transform: uppercase; }
+        nav a:hover { color: #fff; text-shadow: 0 0 10px red; }
+        .container { max-width: 1000px; margin: 30px auto; background: rgba(0,0,0,0.8); padding: 30px; border: 1px solid #222; }
+        .btn { background: var(--red); color: #fff; border: none; padding: 10px 20px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
+        input, textarea, select { background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 10px; width: 100%; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    {% if session.music %}<audio src="{{ session.music }}" autoplay loop></audio>{% endif %}
     <header>
-        <h1 style="letter-spacing: 15px; font-size: 50px; margin:0;">BYTEBIN</h1>
-        <div style="font-size: 12px; color: #333;">ENCRYPTED ACCESS FOR: <span class="waxues-nick">waxues</span></div>
-        <nav>
+        <h1 style="letter-spacing: 10px; margin:0;">BYTEBIN_CORE</h1>
+        <nav style="margin-top: 20px;">
             <a href="/">[ HOME ]</a>
-            {% if session.user %}<a href="/add">[ ADD ]</a><a href="/settings">[ SETTINGS ]</a><a href="/logout">[ EXIT ]</a>
-            {% else %}<a href="/login">[ LOGIN ]</a>{% endif %}
+            {% if session.user %}
+                <a href="/profile/{{ session.user }}">[ MY_PROFILE ]</a>
+                <a href="/add">[ INJECT ]</a>
+                <a href="/settings">[ CONFIG ]</a>
+                {% if session.role == 'Owner' %}<a href="/admin" style="color:red;">[ ADMIN ]</a>{% endif %}
+                <a href="/logout">[ EXIT ]</a>
+            {% else %}
+                <a href="/login">[ LOGIN ]</a>
+            {% endif %}
         </nav>
     </header>
     <div class="container">{% block content %}{% endblock %}</div>

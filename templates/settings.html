@@ -1,9 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>SYSTEM_CONFIGURATION</h2>
+<h2>USER_CONFIG</h2>
 <form method="POST">
-    <label>BG_IMAGE_URL:</label><input type="text" name="bg" value="{{ session.bg }}" placeholder="https://...">
-    <label>MUSIC_URL (.mp3):</label><input type="text" name="mu" value="{{ session.music }}" placeholder="https://...">
-    <button type="submit" class="btn">APPLY_CONFIG</button>
+    <label>STATUS_MESSAGE:</label>
+    <input type="text" name="st" value="{{ session.st }}" placeholder="I am hacker...">
+    <label>BG_IMAGE_URL:</label>
+    <input type="text" name="bg" value="{{ session.bg }}">
+    <label>MUSIC_URL (.mp3):</label>
+    <input type="text" name="mu" value="{{ session.music }}">
+    <button type="submit" class="btn">SAVE_CHANGES</button>
 </form>
 {% endblock %}
