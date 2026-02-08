@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+<div style="text-align: center; border-bottom: 1px solid #222; padding-bottom: 30px;">
+    <h1 class="waxues-nick">{{ u.username }}</h1>
+    <p style="color: #555;">STATUS: {{ u.status }}</p>
+    <p style="font-size: 10px; color: #222;">JOINED: {{ u.reg_date.strftime('%Y-%m-%d') }}</p>
+</div>
+<h3>OPERATOR_PASTES</h3>
+{% for p in pastes %}
+<div style="padding: 10px; border-left: 2px solid red; margin-bottom: 10px; background: rgba(255,0,0,0.02);">
+    <a href="/paste/{{ p.id }}" style="color: #fff; text-decoration:none;">{{ p.title }}</a>
+</div>
+{% endfor %}
+{% endblock %}

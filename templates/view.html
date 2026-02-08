@@ -1,6 +1,25 @@
 {% extends "layout.html" %}
 {% block content %}
 <h1 class="waxues-nick">{{ p.title }}</h1>
-<div style="color: #333; font-size: 12px; margin-bottom: 20px;">SENDER: {{ p.sender }} | VIEWS: {{ p.views }}</div>
-<div style="background: #050505; padding: 30px; border: 1px solid #111; white-space: pre-wrap; line-height: 1.8; color: #ccc;">{{ p.content }}</div>
+<div style="color: #444; font-size: 12px; margin-bottom: 20px;">
+    SENDER: <a href="/profile/{{ p.sender }}" style="color:red;">{{ p.sender }}</a> | VIEWS: {{ p.views }}
+</div>
+<div style="background: #050505; padding: 30px; border: 1px solid #111; white-space: pre-wrap; color: #ccc;">{{ p.content }}</div>
+
+<div style="margin-top: 20px;">
+    <a href="/vote/{{ p.id }}/up" style="color: lime; text-decoration:none;">[ + {{ p.likes }} ]</a>
+    <a href="/vote/{{ p.id }}/down" style="color: red; text-decoration:none; margin-left: 20px;">[ - {{ p.dislikes }} ]</a>
+</div>
+
+<hr style="border:0; border-top:1px solid #111; margin: 40px 0;">
+<h3>COMMENTS</h3>
+{% if session.user %}
+<form method="POST"><textarea name="comment" placeholder="Write a comment..." required></textarea><button type="submit" class="btn">SEND</button></form>
+{% endif %}
+{% for c in comments %}
+<div style="border-bottom: 1px solid #111; padding: 10px 0;">
+    <b style="color:red;">{{ c.sender }}:</b> {{ c.text }}
+    <div style="font-size:10px; color:#333;">{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+</div>
+{% endfor %}
 {% endblock %}

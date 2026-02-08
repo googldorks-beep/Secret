@@ -9,7 +9,7 @@ except ImportError:
     pass
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'ULTRA_STABLE_V190_FIXED')
+app.secret_key = os.environ.get('SECRET_KEY', 'OMEGA_BUILD_V200_STABLE')
 DB_URL = os.environ.get('DATABASE_URL')
 
 def get_db():
@@ -17,65 +17,54 @@ def get_db():
     try:
         conn = psycopg2.connect(DB_URL, cursor_factory=RealDictCursor, connect_timeout=10)
         return conn
-    except Exception as e:
-        print(f"DB CONNECTION ERROR: {e}")
+    except:
         return None
 
 def init_db():
-    """Сносим старое и ставим правильное"""
     conn = get_db()
     if not conn: return
     cur = conn.cursor()
+    # Полная зачистка для новой структуры
+    cur.execute("DROP TABLE IF EXISTS comments CASCADE; DROP TABLE IF EXISTS pastes CASCADE; DROP TABLE IF EXISTS users CASCADE;")
     
-    # ВНИМАНИЕ: Если нужно сохранить старые пасты, удали следуюбую строку.
-    # Но для исправления ошибки 500 лучше очистить структуру:
-    cur.execute("DROP TABLE IF EXISTS pastes CASCADE;")
-    cur.execute("DROP TABLE IF EXISTS users CASCADE;")
-
-    # Создаем таблицу пользователей заново
+    # Таблица Юзеров
     cur.execute("""CREATE TABLE users (
-        id SERIAL PRIMARY KEY, 
-        username TEXT UNIQUE NOT NULL, 
-        password_hash TEXT NOT NULL, 
-        role TEXT DEFAULT 'User', 
-        bg_url TEXT DEFAULT '', 
-        music_url TEXT DEFAULT '',
-        reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        id SERIAL PRIMARY KEY, username TEXT UNIQUE, password_hash TEXT, 
+        role TEXT DEFAULT 'User', bg_url TEXT DEFAULT '', music_url TEXT DEFAULT '',
+        status TEXT DEFAULT 'New Operator', reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )""")
-
-    # Создаем таблицу паст с той самой колонкой created_at
+    # Таблица Паст (с лайками)
     cur.execute("""CREATE TABLE pastes (
-        id SERIAL PRIMARY KEY, 
-        sender TEXT NOT NULL, 
-        title TEXT NOT NULL, 
-        content TEXT NOT NULL, 
-        style TEXT DEFAULT 'dark-blue', 
-        views INTEGER DEFAULT 0, 
+        id SERIAL PRIMARY KEY, sender TEXT, title TEXT, content TEXT, 
+        style TEXT DEFAULT 'dark-blue', views INTEGER DEFAULT 0, 
+        likes INTEGER DEFAULT 0, dislikes INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )""")
-
-    # Твой аккаунт waxues (Пароль: root)
+    # Таблица Комментариев
+    cur.execute("""CREATE TABLE comments (
+        id SERIAL PRIMARY KEY, paste_id INTEGER REFERENCES pastes(id) ON DELETE CASCADE,
+        sender TEXT, text TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )""")
+    
     h = hashlib.sha256("root".encode()).hexdigest()
     cur.execute("INSERT INTO users (username, password_hash, role) VALUES ('waxues', %s, 'Owner') ON CONFLICT DO NOTHING", (h,))
-    
-    conn.commit()
-    cur.close()
-    conn.close()
-    print("[SYSTEM] Database Rebuilt V190 Successfully")
+    conn.commit(); cur.close(); conn.close()
 
+# --- MIDDLEWARE ---
+def login_required(f):
+    @functools.wraps(f)
+    def decorated(*args, **kwargs):
+        if 'user' not in session: return redirect('/login')
+        return f(*args, **kwargs)
+    return decorated
+
+# --- ROUTES ---
 @app.route('/')
 def index():
-    conn = get_db()
-    if not conn: return "Database Offline", 503
-    cur = conn.cursor()
-    try:
-        cur.execute("SELECT * FROM pastes ORDER BY created_at DESC")
-        pastes = cur.fetchall()
-        return render_template('index.html', pastes=pastes)
-    except Exception as e:
-        return f"<h1>DB Error</h1><p>{str(e)}</p>", 500
-    finally:
-        cur.close(); conn.close()
+    conn = get_db(); cur = conn.cursor()
+    cur.execute("SELECT * FROM pastes ORDER BY created_at DESC")
+    p = cur.fetchall(); cur.close(); conn.close()
+    return render_template('index.html', pastes=p)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -90,9 +79,19 @@ def login():
             return redirect('/')
     return render_template('login.html')
 
+@app.route('/profile/<username>')
+def profile(username):
+    conn = get_db(); cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE username=%s", (username,))
+    u = cur.fetchone()
+    if not u: abort(404)
+    cur.execute("SELECT * FROM pastes WHERE sender=%s ORDER BY created_at DESC", (username,))
+    p = cur.fetchall(); cur.close(); conn.close()
+    return render_template('profile.html', u=u, pastes=p)
+
 @app.route('/add', methods=['GET', 'POST'])
+@login_required
 def add():
-    if 'user' not in session: return redirect('/login')
     if request.method == 'POST':
         t, c, s = request.form.get('t'), request.form.get('c'), request.form.get('style')
         if s == 'rainbow' and session.get('role') != 'Owner': s = 'dark-blue'
@@ -102,26 +101,58 @@ def add():
         return redirect('/')
     return render_template('add.html')
 
-@app.route('/settings', methods=['GET', 'POST'])
-def settings():
-    if 'user' not in session: return redirect('/login')
-    if request.method == 'POST':
-        bg, mu = request.form.get('bg'), request.form.get('mu')
-        conn = get_db(); cur = conn.cursor()
-        cur.execute("UPDATE users SET bg_url=%s, music_url=%s WHERE username=%s", (bg, mu, session['user']))
-        conn.commit(); cur.close(); conn.close()
-        session['bg'], session['music'] = bg, mu
-        return redirect('/settings')
-    return render_template('settings.html')
-
-@app.route('/paste/<int:pid>')
+@app.route('/paste/<int:pid>', methods=['GET', 'POST'])
 def view(pid):
     conn = get_db(); cur = conn.cursor()
+    if request.method == 'POST' and 'user' in session:
+        txt = request.form.get('comment')
+        cur.execute("INSERT INTO comments (paste_id, sender, text) VALUES (%s,%s,%s)", (pid, session['user'], txt))
+        conn.commit()
+    
     cur.execute("UPDATE pastes SET views = views + 1 WHERE id = %s", (pid,))
     cur.execute("SELECT * FROM pastes WHERE id = %s", (pid,))
-    p = cur.fetchone(); cur.close(); conn.close()
-    if not p: abort(404)
-    return render_template('view.html', p=p)
+    p = cur.fetchone()
+    cur.execute("SELECT * FROM comments WHERE paste_id = %s ORDER BY created_at DESC", (pid,))
+    c = cur.fetchall(); cur.close(); conn.close()
+    return render_template('view.html', p=p, comments=c)
+
+@app.route('/vote/<int:pid>/<type>')
+@login_required
+def vote(pid, type):
+    col = "likes" if type == "up" else "dislikes"
+    conn = get_db(); cur = conn.cursor()
+    cur.execute(f"UPDATE pastes SET {col} = {col} + 1 WHERE id = %s", (pid,))
+    conn.commit(); cur.close(); conn.close()
+    return redirect(f'/paste/{pid}')
+
+@app.route('/admin')
+@login_required
+def admin():
+    if session.get('role') != 'Owner': abort(403)
+    conn = get_db(); cur = conn.cursor()
+    cur.execute("SELECT * FROM pastes ORDER BY created_at DESC")
+    p = cur.fetchall(); cur.close(); conn.close()
+    return render_template('admin.html', pastes=p)
+
+@app.route('/delete/<int:pid>')
+@login_required
+def delete(pid):
+    if session.get('role') != 'Owner': abort(403)
+    conn = get_db(); cur = conn.cursor()
+    cur.execute("DELETE FROM pastes WHERE id = %s", (pid,))
+    conn.commit(); cur.close(); conn.close()
+    return redirect('/admin')
+
+@app.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    if request.method == 'POST':
+        bg, mu, st = request.form.get('bg'), request.form.get('mu'), request.form.get('st')
+        conn = get_db(); cur = conn.cursor()
+        cur.execute("UPDATE users SET bg_url=%s, music_url=%s, status=%s WHERE username=%s", (bg, mu, st, session['user']))
+        conn.commit(); cur.close(); conn.close()
+        session['bg'], session['music'] = bg, mu
+    return render_template('settings.html')
 
 @app.route('/logout')
 def logout(): session.clear(); return redirect('/')

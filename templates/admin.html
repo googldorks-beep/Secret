@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>ADMIN_CONTROL_PANEL</h2>
+<table style="width: 100%; border-collapse: collapse;">
+    <tr style="color: #444; text-align: left;"><th>ID</th><th>TITLE</th><th>SENDER</th><th>ACTION</th></tr>
+    {% for p in pastes %}
+    <tr style="border-bottom: 1px solid #111;">
+        <td>{{ p.id }}</td><td>{{ p.title }}</td><td>{{ p.sender }}</td>
+        <td><a href="/delete/{{ p.id }}" style="color: red;">[ DELETE ]</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
