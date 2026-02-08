@@ -1,25 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>[ SYSTEM_CONFIGURATION_MENU ]</h2>
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 50px; margin-top: 40px;">
-    <form method="POST">
-        <div class="data-card">
-            <h4 style="margin:0 0 20px 0;">VISUAL_ENVIRONMENT</h4>
-            <label style="color: #444; font-size: 11px;">BACKGROUND_IMAGE_SOURCE (URL):</label>
-            <input type="text" name="bg" value="{{ session.bg }}" placeholder="https://i.imgur.com/...">
-            
-            <label style="color: #444; font-size: 11px;">AUDIO_STREAM_SOURCE (.MP3):</label>
-            <input type="text" name="mu" value="{{ session.music }}" placeholder="https://cdn.site.com/audio.mp3">
-            
-            <button type="submit" class="execute-btn">COMMIT_CHANGES</button>
-        </div>
-    </form>
-    
-    <div style="color: #444; font-size: 11px; border-left: 1px solid #111; padding-left: 20px;">
-        <h4>SESSION_INFO</h4>
-        USER: {{ session.user }}<br>
-        ROLE: {{ session.role }}<br><br>
-        * Изменения вступают в силу немедленно после перезагрузки главного терминала.
-    </div>
-</div>
+<h2>SYSTEM_CONFIGURATION</h2>
+<form method="POST">
+    <label>BG_IMAGE_URL:</label><input type="text" name="bg" value="{{ session.bg }}" placeholder="https://...">
+    <label>MUSIC_URL (.mp3):</label><input type="text" name="mu" value="{{ session.music }}" placeholder="https://...">
+    <button type="submit" class="btn">APPLY_CONFIG</button>
+</form>
 {% endblock %}

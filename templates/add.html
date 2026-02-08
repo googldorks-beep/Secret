@@ -1,22 +1,14 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>[ INJECT_NEW_DATA_PACKET ]</h2>
-<form method="POST" style="margin-top: 40px;">
-    <label style="color: #444; font-size: 11px;">ENTRY_TITLE:</label>
-    <input type="text" name="t" placeholder="Operation name or identifier" required>
-    
-    <label style="color: #444; font-size: 11px;">ENTRY_CONTENT:</label>
-    <textarea name="c" style="height: 400px;" placeholder="Paste decrypted data here..." required></textarea>
-    
-    <label style="color: #444; font-size: 11px;">VISUAL_IDENTIFIER_GLOW:</label>
+<h2>INJECT_NEW_DATA</h2>
+<form method="POST">
+    <input type="text" name="t" placeholder="TITLE" required>
+    <textarea name="c" style="height: 300px;" placeholder="CONTENT..." required></textarea>
     <select name="style">
-        <option value="dark-blue">STANDARD_BLUE (USER_LEVEL)</option>
-        <option value="red">ELEVATED_RED (SYSTEM_MOD)</option>
-        {% if session.role == 'Owner' %}
-            <option value="rainbow">VIP_RAINBOW (OWNER_ONLY)</option>
-        {% endif %}
+        <option value="dark-blue">DEFAULT_BLUE</option>
+        <option value="red">NEON_RED</option>
+        {% if session.role == 'Owner' %}<option value="rainbow">VIP_RAINBOW</option>{% endif %}
     </select>
-    
-    <button type="submit" class="execute-btn">EXECUTE_DATA_UPLOAD</button>
+    <button type="submit" class="btn">POST_TO_SYSTEM</button>
 </form>
 {% endblock %}

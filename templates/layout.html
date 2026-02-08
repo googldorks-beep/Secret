@@ -1,187 +1,38 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BYTEBIN_CORE // SECURE_TERMINAL</title>
+    <title>BYTEBIN V170</title>
     <style>
-        /* Глобальные настройки и переменные */
-        :root {
-            --red: #ff0000;
-            --neon-blue: #00f2ff;
-            --bg-blur: rgba(0, 0, 0, 0.85);
-            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        /* Кастомный скроллбар */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--red); box-shadow: 0 0 10px var(--red); }
-
-        body {
-            background: #000 url('{{ session.bg }}') no-repeat center center fixed;
-            background-size: cover;
-            color: #ffffff;
-            font-family: 'Consolas', 'Monaco', monospace;
-            margin: 0;
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
-
-        /* Глитч-эффект на фоне (Overlay) */
-        .glitch-layer {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJndm45bm05bm05bm05/3o7TKSjPKY1w9MTX6o/giphy.gif');
-            opacity: 0.03;
-            pointer-events: none;
-            z-index: 1000;
-        }
-
-        /* Анимированный хедер */
-        header {
-            background: rgba(0,0,0,0.95);
-            border-bottom: 3px solid var(--red);
-            padding: 50px 20px;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 10px 40px rgba(255,0,0,0.2);
-        }
-
-        .main-logo {
-            font-size: 70px;
-            font-weight: 900;
-            letter-spacing: 20px;
-            text-transform: uppercase;
-            text-shadow: 0 0 20px var(--red), 5px 5px 0px #330000;
-            margin: 0;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.02); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        /* Твой элитный ник */
-        .waxues-special {
-            background: linear-gradient(90deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
-            background-size: 400% 400%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: rainbow_flow 5s ease infinite;
-            font-weight: bold;
-            font-size: 1.3em;
-            text-transform: uppercase;
-        }
-
-        @keyframes rainbow_flow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* Навигация */
-        .nav-hub {
-            margin-top: 40px;
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-        }
-
-        .nav-hub a {
-            color: #aaa;
-            text-decoration: none;
-            font-size: 14px;
-            border: 1px solid #333;
-            padding: 12px 25px;
-            transition: var(--transition);
-            background: rgba(255,255,255,0.02);
-        }
-
-        .nav-hub a:hover {
-            color: #fff;
-            border-color: var(--red);
-            box-shadow: 0 0 20px var(--red);
-            transform: translateY(-5px);
-        }
-
-        /* Основной контейнер */
-        .content-frame {
-            max-width: 1200px;
-            margin: 60px auto;
-            background: var(--bg-blur);
-            border: 1px solid #1a1a1a;
-            padding: 40px;
-            box-shadow: 0 0 100px rgba(0,0,0,1);
-            position: relative;
-        }
-
-        /* Стили карточек и ввода */
-        .data-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid #222;
-            padding: 25px;
-            margin-bottom: 20px;
-            transition: var(--transition);
-        }
-
-        .data-card:hover { border-color: #444; background: rgba(255,255,255,0.05); }
-
-        .glow-rainbow { border-left: 8px solid; border-image: linear-gradient(to bottom, #f00, #ff0, #0f0, #00f, #f0f) 1; }
-        .glow-red { border-left: 8px solid var(--red); }
-        .glow-dark-blue { border-left: 8px solid #002244; }
-
-        input, textarea, select {
-            background: #050505;
-            border: 1px solid #222;
-            color: #fff;
-            padding: 18px;
-            width: 100%;
-            margin-bottom: 25px;
-            box-sizing: border-box;
-            font-family: inherit;
-        }
-
-        .execute-btn {
-            background: var(--red);
-            color: #fff;
-            border: none;
-            padding: 20px;
-            width: 100%;
-            font-weight: 900;
-            letter-spacing: 5px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .execute-btn:hover { background: #cc0000; box-shadow: 0 0 30px var(--red); }
+        :root { --red: #ff0000; --dark: #000000; }
+        body { background: var(--dark) url('{{ session.bg }}') no-repeat center center fixed; background-size: cover; color: #fff; font-family: 'Courier New', monospace; margin: 0; }
+        header { background: rgba(0,0,0,0.95); border-bottom: 2px solid var(--red); padding: 40px; text-align: center; box-shadow: 0 0 30px var(--red); }
+        .waxues-nick { background: linear-gradient(90deg, red, orange, yellow, lime, cyan, blue, violet, red); -webkit-background-clip: text; color: transparent; background-size: 200%; animation: r 3s linear infinite; font-weight: bold; }
+        @keyframes r { to { background-position: 200%; } }
+        nav { margin-top: 20px; }
+        nav a { color: #555; text-decoration: none; padding: 10px 20px; border: 1px solid transparent; transition: 0.3s; }
+        nav a:hover { color: #fff; border-color: var(--red); box-shadow: 0 0 15px var(--red); }
+        .container { max-width: 1100px; margin: 50px auto; background: rgba(0,0,0,0.9); padding: 40px; border: 1px solid #1a1a1a; backdrop-filter: blur(5px); }
+        input, textarea, select { background: #050505; border: 1px solid #222; color: #fff; padding: 15px; width: 100%; margin-bottom: 20px; box-sizing: border-box; }
+        .btn { background: var(--red); color: #fff; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; letter-spacing: 3px; }
+        .btn:hover { box-shadow: 0 0 20px var(--red); }
+        /* Стили паст */
+        .card { padding: 20px; background: rgba(255,255,255,0.02); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #111; }
+        .glow-rainbow { border-left: 6px solid; border-image: linear-gradient(to bottom, red, orange, yellow, green, blue, violet) 1; box-shadow: 0 0 15px rgba(255,0,255,0.2); }
+        .glow-red { border-left: 6px solid var(--red); }
+        .glow-dark-blue { border-left: 6px solid #001a33; }
     </style>
 </head>
 <body>
-    <div class="glitch-layer"></div>
     {% if session.music %}<audio src="{{ session.music }}" autoplay loop></audio>{% endif %}
-
     <header>
-        <h1 class="main-logo">BYTEBIN</h1>
-        <div style="font-size: 13px; color: #555; margin-top: 15px;">
-            SYSTEM_OPERATOR: <span class="waxues-special">waxues</span> | ENCRYPTION_STABLE: [YES]
-        </div>
-        <div class="nav-hub">
-            <a href="/">[ 01_ROOT_DIR ]</a>
-            {% if session.user %}
-                <a href="/add">[ 02_DATA_INPUT ]</a>
-                <a href="/settings">[ 03_SYSTEM_CFG ]</a>
-                <a href="/logout">[ 04_DISCONNECT ]</a>
-            {% else %}
-                <a href="/login">[ 00_AUTH_GATE ]</a>
-            {% endif %}
-        </div>
+        <h1 style="letter-spacing: 15px; font-size: 50px; margin:0;">BYTEBIN</h1>
+        <div style="font-size: 12px; color: #333;">ENCRYPTED ACCESS FOR: <span class="waxues-nick">waxues</span></div>
+        <nav>
+            <a href="/">[ HOME ]</a>
+            {% if session.user %}<a href="/add">[ ADD ]</a><a href="/settings">[ SETTINGS ]</a><a href="/logout">[ EXIT ]</a>
+            {% else %}<a href="/login">[ LOGIN ]</a>{% endif %}
+        </nav>
     </header>
-
-    <div class="content-frame">
-        {% block content %}{% endblock %}
-    </div>
+    <div class="container">{% block content %}{% endblock %}</div>
 </body>
 </html>
