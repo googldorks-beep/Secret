@@ -1,15 +1,60 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2 style="color:red;">SYSTEM_ADMIN_PANEL</h2>
-<table style="width: 100%; text-align: left; border-collapse: collapse;">
-    <tr style="border-bottom: 2px solid #333;"><th>ID</th><th>TITLE</th><th>SENDER</th><th>ACTION</th></tr>
-    {% for p in pastes %}
-    <tr style="border-bottom: 1px solid #111;">
-        <td>{{ p.id }}</td>
-        <td>{{ p.title }}</td>
-        <td>{{ p.sender }}</td>
-        <td><a href="/delete/{{ p.id }}" style="color: red; text-decoration: none;">[ TERMINATE ]</a></td>
-    </tr>
-    {% endfor %}
-</table>
+<style>
+    .admin-nav { display: flex; gap: 20px; border-bottom: 1px solid #222; margin-bottom: 20px; padding-bottom: 10px; }
+    .admin-nav a { color: #555; text-decoration: none; cursor: pointer; font-weight: bold; }
+    .admin-nav a.active { color: var(--red); text-shadow: 0 0 10px var(--red); }
+    
+    .user-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+    .user-card { background: rgba(255,255,255,0.03); border: 1px solid #222; padding: 15px; text-align: center; border-radius: 8px; }
+    .user-card img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid #333; margin-bottom: 10px; object-fit: cover; }
+    .role-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #111; color: #888; }
+    .role-owner { color: var(--red); border: 1px solid var(--red); }
+</style>
+
+<div class="admin-nav">
+    <a onclick="showTab('pastes')" id="p-tab" class="active">PASTES_LOG</a>
+    <a onclick="showTab('users')" id="u-tab">OPERATORS_LIST</a>
+</div>
+
+<div id="pastes-section">
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+        <tr style="text-align: left; color: #444;"><th>ID</th><th>TITLE</th><th>SENDER</th><th>ACTION</th></tr>
+        {% for p in pastes %}
+        <tr style="border-bottom: 1px solid #111;">
+            <td>{{ p.id }}</td>
+            <td>{{ p.title }}</td>
+            <td>{{ p.sender }}</td>
+            <td><a href="/delete_paste/{{ p.id }}" style="color: red;">[ DELETE ]</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div id="users-section" style="display: none;">
+    <div class="user-grid">
+        {% for u in users %}
+        <div class="user-card">
+            <img src="{{ u.avatar_url if u.avatar_url else 'https://i.imgur.com/6VBx3io.png' }}">
+            <div style="font-weight: bold;">{{ u.username }}</div>
+            <div class="role-badge {{ 'role-owner' if u.role == 'Owner' else '' }}">{{ u.role }}</div>
+            <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 5px;">
+                {% if u.role != 'Owner' %}
+                <a href="/admin/promote/{{ u.id }}" style="color: lime; font-size: 10px;">[ PROMOTE ]</a>
+                <a href="/admin/delete_user/{{ u.id }}" style="color: red; font-size: 10px;">[ TERMINATE ]</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function showTab(tab) {
+        document.getElementById('pastes-section').style.display = (tab === 'pastes') ? 'block' : 'none';
+        document.getElementById('users-section').style.display = (tab === 'users') ? 'block' : 'none';
+        document.getElementById('p-tab').className = (tab === 'pastes') ? 'active' : '';
+        document.getElementById('u-tab').className = (tab === 'users') ? 'active' : '';
+    }
+</script>
 {% endblock %}

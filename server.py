@@ -9,7 +9,7 @@ except ImportError:
     pass
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'TOTAL_V220_WAXUES')
+app.secret_key = os.environ.get('SECRET_KEY', 'OVERLORD_V270')
 DB_URL = os.environ.get('DATABASE_URL')
 
 def get_db():
@@ -18,25 +18,6 @@ def get_db():
         conn = psycopg2.connect(DB_URL, cursor_factory=RealDictCursor, connect_timeout=10)
         return conn
     except: return None
-
-def init_db():
-    conn = get_db()
-    if not conn: return
-    cur = conn.cursor()
-    # Обновляем структуру: добавляем avatar_url и таблицу банов
-    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT DEFAULT ''")
-    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_banned BOOLEAN DEFAULT FALSE")
-    cur.execute("""CREATE TABLE IF NOT EXISTS pastes (
-        id SERIAL PRIMARY KEY, sender TEXT, title TEXT, content TEXT, 
-        style TEXT DEFAULT 'dark-blue', views INTEGER DEFAULT 0, 
-        likes INTEGER DEFAULT 0, dislikes INTEGER DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )""")
-    cur.execute("""CREATE TABLE IF NOT EXISTS comments (
-        id SERIAL PRIMARY KEY, paste_id INTEGER REFERENCES pastes(id) ON DELETE CASCADE,
-        sender TEXT, text TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )""")
-    conn.commit(); cur.close(); conn.close()
 
 @app.route('/')
 def index():
@@ -55,7 +36,7 @@ def register():
             cur.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (u, h))
             conn.commit()
             return redirect('/login')
-        except: flash("User already exists!")
+        except: return "User exists"
         finally: cur.close(); conn.close()
     return render_template('register.html')
 
@@ -68,10 +49,43 @@ def login():
         cur.execute("SELECT * FROM users WHERE username=%s AND password_hash=%s", (u, h))
         user = cur.fetchone(); cur.close(); conn.close()
         if user:
-            if user['is_banned']: return "YOU ARE BANNED"
             session.update({'user':user['username'], 'role':user['role'], 'bg':user['bg_url'], 'music':user['music_url'], 'avatar':user['avatar_url']})
             return redirect('/')
     return render_template('login.html')
+
+@app.route('/admin')
+def admin():
+    if session.get('role') != 'Owner': abort(403)
+    conn = get_db(); cur = conn.cursor()
+    cur.execute("SELECT * FROM pastes ORDER BY id DESC")
+    p = cur.fetchall()
+    cur.execute("SELECT * FROM users ORDER BY reg_date DESC")
+    u = cur.fetchall(); cur.close(); conn.close()
+    return render_template('admin.html', pastes=p, users=u)
+
+@app.route('/admin/promote/<int:uid>')
+def promote(uid):
+    if session.get('role') != 'Owner': abort(403)
+    conn = get_db(); cur = conn.cursor()
+    cur.execute("UPDATE users SET role = 'Admin' WHERE id = %s AND role != 'Owner'", (uid,))
+    conn.commit(); cur.close(); conn.close()
+    return redirect('/admin')
+
+@app.route('/admin/delete_user/<int:uid>')
+def delete_user(uid):
+    if session.get('role') != 'Owner': abort(403)
+    conn = get_db(); cur = conn.cursor()
+    cur.execute("DELETE FROM users WHERE id = %s AND role != 'Owner'", (uid,))
+    conn.commit(); cur.close(); conn.close()
+    return redirect('/admin')
+
+@app.route('/delete_paste/<int:pid>')
+def delete_paste(pid):
+    if session.get('role') not in ['Owner', 'Admin']: abort(403)
+    conn = get_db(); cur = conn.cursor()
+    cur.execute("DELETE FROM pastes WHERE id = %s", (pid,))
+    conn.commit(); cur.close(); conn.close()
+    return redirect('/admin')
 
 @app.route('/profile/<username>')
 def profile(username):
@@ -83,6 +97,28 @@ def profile(username):
     p = cur.fetchall(); cur.close(); conn.close()
     return render_template('profile.html', u=u, pastes=p)
 
+@app.route('/paste/<int:pid>', methods=['GET', 'POST'])
+def view(pid):
+    conn = get_db(); cur = conn.cursor()
+    if request.method == 'POST' and 'user' in session:
+        txt = request.form.get('comment')
+        cur.execute("INSERT INTO comments (paste_id, sender, text) VALUES (%s,%s,%s)", (pid, session['user'], txt))
+        conn.commit()
+    cur.execute("UPDATE pastes SET views = views + 1 WHERE id = %s", (pid,))
+    cur.execute("SELECT * FROM pastes WHERE id = %s", (pid,))
+    p = cur.fetchone()
+    cur.execute("SELECT * FROM comments WHERE paste_id = %s ORDER BY created_at DESC", (pid,))
+    c = cur.fetchall(); cur.close(); conn.close()
+    return render_template('view.html', p=p, comments=c)
+
+@app.route('/vote/<int:pid>/<type>')
+def vote(pid, type):
+    col = "likes" if type == "up" else "dislikes"
+    conn = get_db(); cur = conn.cursor()
+    cur.execute(f"UPDATE pastes SET {col} = {col} + 1 WHERE id = %s", (pid,))
+    conn.commit(); cur.close(); conn.close()
+    return redirect(f'/paste/{pid}')
+
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():
     if 'user' not in session: return redirect('/login')
@@ -92,36 +128,8 @@ def settings():
         cur.execute("UPDATE users SET bg_url=%s, music_url=%s, status=%s, avatar_url=%s WHERE username=%s", (bg, mu, st, av, session['user']))
         conn.commit(); cur.close(); conn.close()
         session.update({'bg':bg, 'music':mu, 'avatar':av})
+        return redirect('/settings')
     return render_template('settings.html')
-
-@app.route('/admin')
-def admin():
-    if session.get('role') != 'Owner': abort(403)
-    conn = get_db(); cur = conn.cursor()
-    cur.execute("SELECT * FROM users ORDER BY id DESC")
-    u = cur.fetchall()
-    cur.execute("SELECT * FROM pastes ORDER BY id DESC")
-    p = cur.fetchall(); cur.close(); conn.close()
-    return render_template('admin.html', users=u, pastes=p)
-
-@app.route('/ban/<username>')
-def ban(username):
-    if session.get('role') != 'Owner': abort(403)
-    conn = get_db(); cur = conn.cursor()
-    cur.execute("UPDATE users SET is_banned = NOT is_banned WHERE username=%s", (username,))
-    conn.commit(); cur.close(); conn.close()
-    return redirect('/admin')
-
-@app.route('/paste/<int:pid>')
-def view(pid):
-    conn = get_db(); cur = conn.cursor()
-    cur.execute("UPDATE pastes SET views = views + 1 WHERE id = %s", (pid,))
-    cur.execute("SELECT * FROM pastes WHERE id = %s", (pid,))
-    p = cur.fetchone()
-    cur.execute("SELECT * FROM comments WHERE paste_id = %s ORDER BY created_at DESC", (pid,))
-    c = cur.fetchall(); cur.close(); conn.close()
-    if not p: abort(404)
-    return render_template('view.html', p=p, comments=c)
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
@@ -138,5 +146,4 @@ def add():
 def logout(): session.clear(); return redirect('/')
 
 if __name__ == "__main__":
-    init_db()
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 8080)))
