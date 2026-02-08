@@ -2,73 +2,54 @@
 <html>
 <head>
     <style>
-        :root { --red: #ff0000; --green: #00ff41; --blue: #00f2ff; }
+        :root { --red: #ff0000; --green: #00ff41; }
         body { background: #000 url('{{ session.bg }}') fixed center; background-size: cover; color: #fff; font-family: monospace; margin: 0; }
+        
+        /* Счетчик онлайна */
+        .online-counter {
+            position: fixed; top: 20px; right: 20px;
+            background: rgba(0,0,0,0.8); border: 1px solid var(--green);
+            padding: 5px 15px; border-radius: 20px;
+            font-size: 10px; color: var(--green);
+            box-shadow: 0 0 10px rgba(0,255,65,0.2); z-index: 1000;
+        }
+        .online-dot { height: 8px; width: 8px; background-color: var(--green); border-radius: 50%; display: inline-block; margin-right: 5px; animation: blink 1s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
         header { background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--red); padding: 25px; text-align: center; }
-        
-        .main-title { color: #fff; font-size: 42px; letter-spacing: 8px; margin: 0; font-weight: bold; }
-        
-        /* Радужный ник */
-        .waxues-nick { 
-            background: linear-gradient(90deg, red, orange, yellow, lime, cyan, blue, violet, red); 
-            -webkit-background-clip: text; color: transparent; background-size: 200%; 
-            animation: rainbow_text 3s linear infinite; font-weight: bold; 
-        }
-        @keyframes rainbow_text { to { background-position: 200%; } }
-
-        nav a { color: #666; text-decoration: none; margin: 0 10px; font-weight: bold; }
+        nav a { color: #666; text-decoration: none; margin: 0 10px; font-weight: bold; font-size: 12px; }
         nav a:hover { color: #fff; }
-
-        .container { max-width: 1100px; margin: 30px auto; background: rgba(0,0,0,0.85); padding: 25px; border: 1px solid #222; position: relative; z-index: 100; }
-
-        /* Радужная паста (Анимированная заливка) */
-        .glow-rainbow { 
-            background: linear-gradient(45deg, rgba(255,0,0,0.2), rgba(0,255,0,0.2), rgba(0,0,255,0.2));
-            background-size: 400% 400%;
-            animation: rainbow_bg 10s ease infinite;
-            border: 1px solid #fff;
-            box-shadow: 0 0 20px rgba(255,255,255,0.2);
-        }
-        @keyframes rainbow_bg { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-
-        .paste-row { display: block; text-decoration: none; color: inherit; padding: 20px; margin-bottom: 15px; border-radius: 4px; transition: 0.3s; }
-        .glow-red { background: rgba(255,0,0,0.15); border: 1px solid var(--red); box-shadow: 0 0 15px rgba(255,0,0,0.3); }
-
-        .avatar-img { width: 150px; height: 150px; border-radius: 50%; border: 3px solid var(--red); object-fit: cover; cursor: pointer; }
+        .container { max-width: 1000px; margin: 30px auto; background: rgba(0,0,0,0.85); padding: 25px; border: 1px solid #222; }
         
-        #snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
-        .snowflake { position: absolute; color: #fff; top: -20px; animation: fall linear forwards; }
-        @keyframes fall { to { transform: translateY(105vh); } }
+        .paste-row { display: block; text-decoration: none; color: inherit; padding: 20px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #222; position: relative; }
+        .view-count { position: absolute; bottom: 10px; right: 20px; font-size: 10px; color: #444; }
+        
+        /* Радужный ник для тебя */
+        .waxues-nick { background: linear-gradient(90deg, red, orange, yellow, lime, cyan, blue, violet, red); -webkit-background-clip: text; color: transparent; background-size: 200%; animation: r 3s linear infinite; font-weight: bold; }
+        @keyframes r { to { background-position: 200%; } }
+        
+        .btn { background: var(--red); color: white; border: none; padding: 10px; cursor: pointer; font-weight: bold; width: 100%; }
+        input, textarea, select { background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 12px; width: 100%; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <div id="snow-container"></div>
+    <div class="online-counter">
+        <span class="online-dot"></span> ONLINE_OPERATORS: {{ online }}
+    </div>
     <header>
-        <h1 class="main-title">BYTEBIN</h1>
+        <h1 style="letter-spacing: 10px; margin:0;">BYTEBIN</h1>
         <nav>
             <a href="/">[ HOME ]</a>
             <a href="/users">[ USERS ]</a>
             {% if session.user %}
                 <a href="/profile/{{ session.user }}">[ PROFILE ]</a>
                 <a href="/add">[ ADD PAST ]</a>
-                {% if session.role == 'Owner' %}<a href="/admin" style="color:red;">[ ADMIN ]</a>{% endif %}
                 <a href="/logout">[ EXIT ]</a>
-            {% else %}<a href="/login">[ LOGIN ]</a>{% endif %}
+            {% else %}
+                <a href="/login">[ LOGIN ]</a>
+            {% endif %}
         </nav>
     </header>
     <div class="container">{% block content %}{% endblock %}</div>
-    <script>
-        function createSnow() {
-            const snow = document.getElementById('snow-container');
-            const flake = document.createElement('div');
-            flake.classList.add('snowflake'); flake.innerHTML = '&#10052;';
-            flake.style.left = Math.random() * 100 + 'vw';
-            flake.style.opacity = Math.random();
-            flake.style.fontSize = Math.random() * 15 + 10 + 'px';
-            flake.style.animationDuration = (Math.random() * 5 + 5) + 's';
-            snow.appendChild(flake); setTimeout(() => flake.remove(), 10000);
-        }
-        setInterval(createSnow, 150);
-    </script>
 </body>
 </html>
