@@ -8,7 +8,7 @@ except ImportError:
     pass
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'ULTRA_V290_FINAL')
+app.secret_key = os.environ.get('SECRET_KEY', 'ABSOLUTE_V300')
 DB_URL = os.environ.get('DATABASE_URL')
 
 def get_db():
@@ -25,13 +25,6 @@ def index():
     p = cur.fetchall(); cur.close(); conn.close()
     return render_template('index.html', pastes=p)
 
-@app.route('/users')
-def users_list():
-    conn = get_db(); cur = conn.cursor()
-    cur.execute("SELECT username, avatar_url, status, role FROM users ORDER BY reg_date DESC")
-    u = cur.fetchall(); cur.close(); conn.close()
-    return render_template('users.html', users=u)
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -45,15 +38,32 @@ def login():
             return redirect('/')
     return render_template('login.html')
 
-@app.route('/profile/<username>')
-def profile(username):
+@app.route('/admin')
+def admin():
+    # Жесткая проверка: роль должна быть Owner
+    if session.get('role') != 'Owner': 
+        return "ACCESS_DENIED: REQUIRED_ROLE_OWNER", 403
     conn = get_db(); cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE username=%s", (username,))
-    u = cur.fetchone()
-    if not u: abort(404)
-    cur.execute("SELECT * FROM pastes WHERE sender=%s ORDER BY created_at DESC", (username,))
-    p = cur.fetchall(); cur.close(); conn.close()
-    return render_template('profile.html', u=u, pastes=p)
+    cur.execute("SELECT * FROM pastes ORDER BY id DESC")
+    p = cur.fetchall()
+    cur.execute("SELECT * FROM users ORDER BY reg_date DESC")
+    u = cur.fetchall(); cur.close(); conn.close()
+    return render_template('admin.html', pastes=p, users=u)
+
+@app.route('/paste/<int:pid>', methods=['GET', 'POST'])
+def view_paste(pid):
+    conn = get_db(); cur = conn.cursor()
+    if request.method == 'POST' and 'user' in session:
+        txt = request.form.get('comment')
+        cur.execute("INSERT INTO comments (paste_id, sender, text) VALUES (%s,%s,%s)", (pid, session['user'], txt))
+        conn.commit()
+    cur.execute("UPDATE pastes SET views = views + 1 WHERE id = %s", (pid,))
+    cur.execute("SELECT * FROM pastes WHERE id = %s", (pid,))
+    p = cur.fetchone()
+    if not p: abort(404)
+    cur.execute("SELECT * FROM comments WHERE paste_id = %s ORDER BY created_at DESC", (pid,))
+    c = cur.fetchall(); cur.close(); conn.close()
+    return render_template('view.html', p=p, comments=c)
 
 @app.route('/update_avatar', methods=['POST'])
 def update_avatar():
@@ -78,6 +88,24 @@ def add():
         conn.commit(); cur.close(); conn.close()
         return redirect('/')
     return render_template('add.html')
+
+# Остальные маршруты (users, profile, logout) оставляем без изменений
+@app.route('/users')
+def users_list():
+    conn = get_db(); cur = conn.cursor()
+    cur.execute("SELECT username, avatar_url, status, role FROM users ORDER BY reg_date DESC")
+    u = cur.fetchall(); cur.close(); conn.close()
+    return render_template('users.html', users=u)
+
+@app.route('/profile/<username>')
+def profile(username):
+    conn = get_db(); cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE username=%s", (username,))
+    u = cur.fetchone()
+    if not u: abort(404)
+    cur.execute("SELECT * FROM pastes WHERE sender=%s ORDER BY created_at DESC", (username,))
+    p = cur.fetchall(); cur.close(); conn.close()
+    return render_template('profile.html', u=u, pastes=p)
 
 @app.route('/logout')
 def logout(): session.clear(); return redirect('/')

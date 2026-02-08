@@ -1,12 +1,11 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>LIVE_DATA_STREAMS</h2>
+<h2>LIVE_STREAMS</h2>
 {% for p in pastes %}
 <a href="/paste/{{ p.id }}" class="paste-row glow-{{ p.style }}">
     <div style="font-size: 20px; font-weight: bold;">{{ p.title }}</div>
-    <div style="font-size: 11px; color: #444; margin-top: 10px;">
-        OPERATOR: <span class="{{ 'waxues-nick' if p.sender == 'waxues' else '' }}">{{ p.sender }}</span> | 
-        VIEWS: {{ p.views }} | {{ p.created_at.strftime('%Y-%m-%d') }}
+    <div style="font-size: 11px; color: #666; margin-top: 10px;">
+        OPERATOR: <span class="{{ 'waxues-nick' if p.sender == 'waxues' else '' }}">{{ p.sender }}</span> | VIEWS: {{ p.views }}
     </div>
 </a>
 {% endfor %}
