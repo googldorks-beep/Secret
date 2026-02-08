@@ -1,16 +1,35 @@
 {% extends "layout.html" %}
 {% block content %}
 <div style="text-align: center;">
-    {% if u.avatar_url %}
-        <img src="{{ u.avatar_url }}" class="avatar-img">
-    {% else %}
-        <div style="width:100px; height:100px; background:#111; margin: 0 auto; border-radius:50%;"></div>
+    <div style="position: relative; display: inline-block; cursor: pointer;" onclick="toggleAvInput()">
+        <img src="{{ u.avatar_url if u.avatar_url else 'https://i.imgur.com/6VBx3io.png' }}" class="avatar-img" id="main-avatar">
+        {% if session.user == u.username %}
+        <div style="position: absolute; bottom: 0; right: 0; background: red; border-radius: 50%; width: 30px; height: 30px; line-height: 30px; font-size: 15px;">+</div>
+        {% endif %}
+    </div>
+    
+    {% if session.user == u.username %}
+    <div id="av-form" style="display: none; margin-top: 15px;">
+        <form action="/update_avatar" method="POST">
+            <input type="text" name="avatar_url" placeholder="Paste image URL here..." style="width: 250px;">
+            <button type="submit" class="btn" style="width: 100px;">SAVE</button>
+        </form>
+    </div>
     {% endif %}
+
     <h1 class="waxues-nick">{{ u.username }}</h1>
-    <p style="color:lime;">{{ u.status }}</p>
+    <p style="color: #444;">{{ u.status }}</p>
 </div>
-<h3>USER_PASTES</h3>
+
+<h3 style="margin-top: 40px;">TRANSFERS</h3>
 {% for p in pastes %}
 <a href="/paste/{{ p.id }}" class="paste-row glow-{{ p.style }}">{{ p.title }}</a>
 {% endfor %}
+
+<script>
+function toggleAvInput() {
+    let el = document.getElementById('av-form');
+    if(el) el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+}
+</script>
 {% endblock %}
