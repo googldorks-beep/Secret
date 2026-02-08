@@ -3,39 +3,17 @@
 <head>
     <style>
         :root { --red: #ff0000; --green: #00ff41; }
-        body { background: #000 url('{{ session.bg }}') fixed center; background-size: cover; color: #fff; font-family: monospace; margin: 0; }
-        
-        /* Счетчик онлайна */
-        .online-counter {
-            position: fixed; top: 20px; right: 20px;
-            background: rgba(0,0,0,0.8); border: 1px solid var(--green);
-            padding: 5px 15px; border-radius: 20px;
-            font-size: 10px; color: var(--green);
-            box-shadow: 0 0 10px rgba(0,255,65,0.2); z-index: 1000;
-        }
-        .online-dot { height: 8px; width: 8px; background-color: var(--green); border-radius: 50%; display: inline-block; margin-right: 5px; animation: blink 1s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-
+        body { background: #000 url('{{ current_user.bg_url if current_user else "" }}') fixed center; background-size: cover; color: #fff; font-family: monospace; margin: 0; }
+        .online-counter { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.8); border: 1px solid var(--green); padding: 5px 15px; border-radius: 20px; font-size: 10px; color: var(--green); z-index: 1000; }
         header { background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--red); padding: 25px; text-align: center; }
-        nav a { color: #666; text-decoration: none; margin: 0 10px; font-weight: bold; font-size: 12px; }
-        nav a:hover { color: #fff; }
+        nav a { color: #666; text-decoration: none; margin: 0 10px; font-weight: bold; }
         .container { max-width: 1000px; margin: 30px auto; background: rgba(0,0,0,0.85); padding: 25px; border: 1px solid #222; }
-        
-        .paste-row { display: block; text-decoration: none; color: inherit; padding: 20px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #222; position: relative; }
-        .view-count { position: absolute; bottom: 10px; right: 20px; font-size: 10px; color: #444; }
-        
-        /* Радужный ник для тебя */
         .waxues-nick { background: linear-gradient(90deg, red, orange, yellow, lime, cyan, blue, violet, red); -webkit-background-clip: text; color: transparent; background-size: 200%; animation: r 3s linear infinite; font-weight: bold; }
         @keyframes r { to { background-position: 200%; } }
-        
-        .btn { background: var(--red); color: white; border: none; padding: 10px; cursor: pointer; font-weight: bold; width: 100%; }
-        input, textarea, select { background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 12px; width: 100%; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <div class="online-counter">
-        <span class="online-dot"></span> ONLINE_OPERATORS: {{ online }}
-    </div>
+    <div class="online-counter">ONLINE: {{ online if online else "7" }}</div>
     <header>
         <h1 style="letter-spacing: 10px; margin:0;">BYTEBIN</h1>
         <nav>
