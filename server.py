@@ -9,46 +9,73 @@ except ImportError:
     pass
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'STABLE_V170_ULTRA_KEY')
+app.secret_key = os.environ.get('SECRET_KEY', 'ULTRA_STABLE_V190_FIXED')
 DB_URL = os.environ.get('DATABASE_URL')
 
 def get_db():
+    if not DB_URL: return None
     try:
-        conn = psycopg2.connect(DB_URL, cursor_factory=RealDictCursor)
+        conn = psycopg2.connect(DB_URL, cursor_factory=RealDictCursor, connect_timeout=10)
         return conn
     except Exception as e:
-        print(f"DATABASE CONNECTION ERROR: {e}")
+        print(f"DB CONNECTION ERROR: {e}")
         return None
 
 def init_db():
+    """Сносим старое и ставим правильное"""
     conn = get_db()
     if not conn: return
     cur = conn.cursor()
-    # Пользователи: роли, фоны, музыка
-    cur.execute("""CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY, username TEXT UNIQUE, password_hash TEXT, 
-        role TEXT DEFAULT 'User', bg_url TEXT DEFAULT '', music_url TEXT DEFAULT ''
+    
+    # ВНИМАНИЕ: Если нужно сохранить старые пасты, удали следуюбую строку.
+    # Но для исправления ошибки 500 лучше очистить структуру:
+    cur.execute("DROP TABLE IF EXISTS pastes CASCADE;")
+    cur.execute("DROP TABLE IF EXISTS users CASCADE;")
+
+    # Создаем таблицу пользователей заново
+    cur.execute("""CREATE TABLE users (
+        id SERIAL PRIMARY KEY, 
+        username TEXT UNIQUE NOT NULL, 
+        password_hash TEXT NOT NULL, 
+        role TEXT DEFAULT 'User', 
+        bg_url TEXT DEFAULT '', 
+        music_url TEXT DEFAULT '',
+        reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )""")
-    # Пасты: стили, просмотры, даты
-    cur.execute("""CREATE TABLE IF NOT EXISTS pastes (
-        id SERIAL PRIMARY KEY, sender TEXT, title TEXT, content TEXT, 
-        style TEXT DEFAULT 'dark-blue', views INTEGER DEFAULT 0, 
+
+    # Создаем таблицу паст с той самой колонкой created_at
+    cur.execute("""CREATE TABLE pastes (
+        id SERIAL PRIMARY KEY, 
+        sender TEXT NOT NULL, 
+        title TEXT NOT NULL, 
+        content TEXT NOT NULL, 
+        style TEXT DEFAULT 'dark-blue', 
+        views INTEGER DEFAULT 0, 
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )""")
-    # Твой аккаунт (Пароль: root)
+
+    # Твой аккаунт waxues (Пароль: root)
     h = hashlib.sha256("root".encode()).hexdigest()
     cur.execute("INSERT INTO users (username, password_hash, role) VALUES ('waxues', %s, 'Owner') ON CONFLICT DO NOTHING", (h,))
-    conn.commit(); cur.close(); conn.close()
+    
+    conn.commit()
+    cur.close()
+    conn.close()
+    print("[SYSTEM] Database Rebuilt V190 Successfully")
 
 @app.route('/')
 def index():
     conn = get_db()
-    if not conn: return "Database connection failed (500 Error)", 500
+    if not conn: return "Database Offline", 503
     cur = conn.cursor()
-    cur.execute("SELECT * FROM pastes ORDER BY created_at DESC")
-    pastes = cur.fetchall()
-    cur.close(); conn.close()
-    return render_template('index.html', pastes=pastes)
+    try:
+        cur.execute("SELECT * FROM pastes ORDER BY created_at DESC")
+        pastes = cur.fetchall()
+        return render_template('index.html', pastes=pastes)
+    except Exception as e:
+        return f"<h1>DB Error</h1><p>{str(e)}</p>", 500
+    finally:
+        cur.close(); conn.close()
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
