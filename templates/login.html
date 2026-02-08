@@ -1,13 +1,89 @@
 {% extends "layout.html" %}
 {% block content %}
-<div style="max-width: 400px; margin: 0 auto; text-align: center;">
-    <h2>AUTH_GATE</h2>
-    <form method="POST">
-        <input type="text" name="u" placeholder="OPERATOR_ID" required>
-        <input type="password" name="p" placeholder="ACCESS_CODE" required>
-        <button type="submit" class="btn">VERIFY</button>
-    </form>
-    <hr style="border:0; border-top:1px solid #111; margin: 20px 0;">
-    <a href="/register" class="btn" style="text-decoration:none; display:block; background:#111;">CREATE NEW ACCOUNT</a>
+<style>
+    /* Контейнер для центрирования */
+    .login-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh; /* Центровка относительно высоты контента */
+    }
+
+    .login-box {
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid var(--red);
+        box-shadow: 0 0 30px rgba(255, 0, 0, 0.2);
+        padding: 40px;
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        border-radius: 8px;
+        position: relative;
+    }
+
+    .login-box h2 {
+        letter-spacing: 5px;
+        color: #fff;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+        font-size: 24px;
+    }
+
+    .login-box input {
+        background: #000;
+        border: 1px solid #333;
+        color: #fff;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+        transition: 0.3s;
+        font-family: 'Courier New', monospace;
+    }
+
+    .login-box input:focus {
+        border-color: var(--red);
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        outline: none;
+    }
+
+    .login-box .btn {
+        background: var(--red);
+        border: none;
+        padding: 15px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+
+    .login-box .btn:hover {
+        background: #b30000;
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        transform: scale(1.02);
+    }
+
+    .reg-link {
+        display: block;
+        margin-top: 20px;
+        color: #555;
+        text-decoration: none;
+        font-size: 12px;
+    }
+
+    .reg-link:hover {
+        color: #fff;
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="login-box">
+        <h2>IDENTIFICATION</h2>
+        <form method="POST">
+            <input type="text" name="u" placeholder="OPERATOR_NAME" required autocomplete="off">
+            <input type="password" name="p" placeholder="ACCESS_CODE" required>
+            <button type="submit" class="btn">INITIALIZE_SESSION</button>
+        </form>
+        <a href="/register" class="reg-link">Request new access? [ REGISTER ]</a>
+    </div>
 </div>
 {% endblock %}
