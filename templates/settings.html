@@ -1,10 +1,12 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>USER_CONFIG</h2>
+<h2>SYSTEM_CONFIG</h2>
 <form method="POST">
+    <label>AVATAR_URL (Link to image):</label>
+    <input type="text" name="av" value="{{ session.avatar }}">
     <label>STATUS_MESSAGE:</label>
-    <input type="text" name="st" value="{{ session.st }}" placeholder="I am hacker...">
-    <label>BG_IMAGE_URL:</label>
+    <input type="text" name="st" placeholder="System Operator">
+    <label>BACKGROUND_URL:</label>
     <input type="text" name="bg" value="{{ session.bg }}">
     <label>MUSIC_URL (.mp3):</label>
     <input type="text" name="mu" value="{{ session.music }}">

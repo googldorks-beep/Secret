@@ -1,27 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>BYTEBIN OMEGA V210</title>
     <style>
-        :root { --red: #ff0000; --dark: #000; }
-        body { background: var(--dark) url('{{ session.bg }}') no-repeat center center fixed; background-size: cover; color: #fff; font-family: monospace; margin: 0; }
-        header { background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--red); padding: 30px; text-align: center; }
-        .waxues-nick { background: linear-gradient(90deg, red, yellow, lime, cyan, blue, violet, red); -webkit-background-clip: text; color: transparent; background-size: 200%; animation: r 3s linear infinite; font-weight: bold; }
+        :root { --red: #ff0000; --blue: #00f2ff; }
+        body { background: #000 url('{{ session.bg }}') fixed center; background-size: cover; color: #fff; font-family: monospace; }
+        header { background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--red); padding: 20px; text-align: center; }
+        .waxues-nick { background: linear-gradient(90deg, red, orange, yellow, lime, cyan, blue, violet, red); -webkit-background-clip: text; color: transparent; background-size: 200%; animation: r 3s linear infinite; font-weight: bold; }
         @keyframes r { to { background-position: 200%; } }
-        nav a { color: #666; text-decoration: none; margin: 0 10px; font-weight: bold; text-transform: uppercase; }
-        nav a:hover { color: #fff; text-shadow: 0 0 10px red; }
-        .container { max-width: 1000px; margin: 30px auto; background: rgba(0,0,0,0.8); padding: 30px; border: 1px solid #222; }
-        .btn { background: var(--red); color: #fff; border: none; padding: 10px 20px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
+        nav a { color: #666; text-decoration: none; margin: 0 10px; font-weight: bold; }
+        .container { max-width: 1000px; margin: 30px auto; background: rgba(0,0,0,0.8); padding: 20px; border: 1px solid #222; }
+        
+        /* Кликабельная полоска пасты */
+        .paste-row { 
+            display: block; text-decoration: none; color: inherit; 
+            padding: 20px; margin-bottom: 15px; background: rgba(255,255,255,0.02); 
+            transition: 0.3s; border: 1px solid #111;
+        }
+        /* Свечение всей полоски */
+        .glow-rainbow { border: 1px solid transparent; border-image: linear-gradient(to right, red, orange, yellow, green, blue, violet) 1; box-shadow: 0 0 15px rgba(255,0,255,0.3); }
+        .glow-red { border: 1px solid var(--red); box-shadow: 0 0 15px rgba(255,0,0,0.4); }
+        .glow-dark-blue { border: 1px solid var(--blue); box-shadow: 0 0 15px rgba(0,242,255,0.2); }
+        
+        .paste-row:hover { transform: scale(1.01); background: rgba(255,255,255,0.05); }
+        .btn { background: var(--red); color: #fff; border: none; padding: 10px; width: 100%; cursor: pointer; }
         input, textarea, select { background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 10px; width: 100%; margin-bottom: 10px; }
+        .avatar-img { width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--red); object-fit: cover; }
     </style>
 </head>
 <body>
     <header>
-        <h1 style="letter-spacing: 10px; margin:0;">BYTEBIN_CORE</h1>
-        <nav style="margin-top: 20px;">
+        <h1 class="waxues-nick">BYTEBIN_OMEGA</h1>
+        <nav>
             <a href="/">[ HOME ]</a>
             {% if session.user %}
-                <a href="/profile/{{ session.user }}">[ MY_PROFILE ]</a>
+                <a href="/profile/{{ session.user }}">[ PROFILE ]</a>
                 <a href="/add">[ INJECT ]</a>
                 <a href="/settings">[ CONFIG ]</a>
                 {% if session.role == 'Owner' %}<a href="/admin" style="color:red;">[ ADMIN ]</a>{% endif %}

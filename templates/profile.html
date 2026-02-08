@@ -1,15 +1,16 @@
 {% extends "layout.html" %}
 {% block content %}
-<div style="text-align: center; border-bottom: 1px solid #333; padding-bottom: 20px;">
+<div style="text-align: center;">
+    {% if u.avatar_url %}
+        <img src="{{ u.avatar_url }}" class="avatar-img">
+    {% else %}
+        <div style="width:100px; height:100px; background:#111; margin: 0 auto; border-radius:50%;"></div>
+    {% endif %}
     <h1 class="waxues-nick">{{ u.username }}</h1>
-    <p>STATUS: <span style="color:lime;">{{ u.status }}</span></p>
-    <p style="font-size: 10px; color: #444;">ID: {{ u.id }} | ROLE: {{ u.role }}</p>
+    <p style="color:lime;">{{ u.status }}</p>
 </div>
-<h3 style="margin-top: 30px;">USER_DATA_PACKETS:</h3>
+<h3>USER_PASTES</h3>
 {% for p in pastes %}
-<div style="padding: 15px; background: rgba(255,255,255,0.02); border-left: 3px solid red; margin-bottom: 10px;">
-    <a href="/paste/{{ p.id }}" style="color: #eee; text-decoration: none;">{{ p.title }}</a>
-    <span style="float: right; color: #333; font-size: 10px;">VIEWS: {{ p.views }}</span>
-</div>
+<a href="/paste/{{ p.id }}" class="paste-row glow-{{ p.style }}">{{ p.title }}</a>
 {% endfor %}
 {% endblock %}

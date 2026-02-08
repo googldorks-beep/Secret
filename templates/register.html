@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block content %}
+<div style="max-width: 400px; margin: 0 auto; text-align: center;">
+    <h2>NEW_OPERATOR_REGISTRATION</h2>
+    <form method="POST">
+        <input type="text" name="u" placeholder="CHOOSE_ID" required>
+        <input type="password" name="p" placeholder="SET_ACCESS_CODE" required>
+        <button type="submit" class="btn">CREATE_ACCOUNT</button>
+    </form>
+    <a href="/login" style="color: #333; font-size: 10px; display: block; margin-top: 10px;">ALREADY REGISTERED? LOGIN</a>
+</div>
+{% endblock %}

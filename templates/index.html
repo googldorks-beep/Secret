@@ -1,16 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2 style="color: #333; border-bottom: 1px solid #111; padding-bottom: 10px;">// LIVE_PASTES_STREAMS</h2>
+<h2>LIVE_DATA_STREAMS</h2>
 {% for p in pastes %}
-<div class="card glow-{{ p.style }}">
-    <div>
-        <a href="/paste/{{ p.id }}" style="color: #fff; text-decoration: none; font-size: 20px; font-weight: bold;">{{ p.title }}</a>
-        <div style="font-size: 11px; color: #444; margin-top: 5px;">
-            BY <span class="{{ 'waxues-nick' if p.sender == 'waxues' else '' }}">{{ p.sender }}</span> | 
-            VIEWS: {{ p.views }} | {{ p.created_at.strftime('%Y-%m-%d') }}
-        </div>
+<a href="/paste/{{ p.id }}" class="paste-row glow-{{ p.style }}">
+    <div style="font-size: 20px; font-weight: bold;">{{ p.title }}</div>
+    <div style="font-size: 11px; color: #444; margin-top: 10px;">
+        OPERATOR: <span class="{{ 'waxues-nick' if p.sender == 'waxues' else '' }}">{{ p.sender }}</span> | 
+        VIEWS: {{ p.views }} | {{ p.created_at.strftime('%Y-%m-%d') }}
     </div>
-    <div style="color: var(--red); font-size: 10px;">[ DATA_OK ]</div>
-</div>
+</a>
 {% endfor %}
 {% endblock %}

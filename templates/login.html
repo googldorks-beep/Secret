@@ -1,7 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
 <div style="max-width: 400px; margin: 0 auto; text-align: center;">
-    <h2>AUTHORIZATION_GATE</h2>
-    <form method="POST"><input type="text" name="u" placeholder="LOGIN" required><input type="password" name="p" placeholder="PASSWORD" required><button type="submit" class="btn">ACCESS</button></form>
+    <h2>AUTH_GATE</h2>
+    <form method="POST">
+        <input type="text" name="u" placeholder="OPERATOR_ID" required>
+        <input type="password" name="p" placeholder="ACCESS_CODE" required>
+        <button type="submit" class="btn">VERIFY</button>
+    </form>
+    <hr style="border:0; border-top:1px solid #111; margin: 20px 0;">
+    <a href="/register" class="btn" style="text-decoration:none; display:block; background:#111;">CREATE NEW ACCOUNT</a>
 </div>
 {% endblock %}
