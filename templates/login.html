@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block content %}
+<div style="max-width: 450px; margin: 0 auto; padding: 40px; background: rgba(0,0,0,0.4); border: 1px solid #111;">
+    <h2 style="text-align: center; letter-spacing: 10px;">AUTHORIZATION</h2>
+    <p style="text-align: center; color: #333; font-size: 11px; margin-bottom: 40px;">ENTER CLEARANCE CODES TO PROCEED</p>
+    
+    <form method="POST">
+        <input type="text" name="u" placeholder="OPERATOR_ID" required autofocus>
+        <input type="password" name="p" placeholder="ACCESS_KEY" required>
+        <button type="submit" class="execute-btn">VALIDATE_ACCESS</button>
+    </form>
+    
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div style="color: var(--red); text-align: center; margin-top: 20px; font-size: 12px;">{{ messages[0] }}</div>
+      {% endif %}
+    {% endwith %}
+</div>
+{% endblock %}

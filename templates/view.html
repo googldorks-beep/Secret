@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+<div style="border-bottom: 1px solid #222; margin-bottom: 30px; padding-bottom: 20px;">
+    <h1 style="color: var(--red); margin:0;">{{ p.title }}</h1>
+    <div style="font-size: 12px; color: #444; margin-top: 10px;">
+        SOURCE: {{ p.sender }} | TIMESTAMP: {{ p.created_at.strftime('%Y-%m-%d %H:%M:%S') }} | READS: {{ p.views }}
+    </div>
+</div>
+
+<div style="background: rgba(255,255,255,0.01); border: 1px solid #111; padding: 40px; font-size: 16px; color: #bbb; line-height: 1.8; white-space: pre-wrap; letter-spacing: 0.5px;">
+{{ p.content }}
+</div>
+
+<div style="margin-top: 50px; text-align: center;">
+    <a href="/" style="color: #333; text-decoration: none; font-size: 11px;">[ RETURN_TO_ROOT_DIRECTORY ]</a>
+</div>
+{% endblock %}
