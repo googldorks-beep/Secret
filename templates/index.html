@@ -1,17 +1,21 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2 style="color: #222; letter-spacing: 3px;">DATABASE_FEED</h2>
-<div style="margin-top: 20px;">
-    {% for p in pastes %}
-    <a href="/paste/{{ p.id }}" class="paste-row glow-{{ p.style }}" style="margin-bottom: 20px; display: block; min-height: 60px;">
-        <div style="font-size: 18px; font-weight: bold; color: #fff;">{{ p.title if p.title else "UNTITLED_DATA" }}</div>
-        <div style="font-size: 11px; color: #555; margin-top: 8px;">
-            SENDER: <span class="{{ 'waxues-nick' if p.sender == 'waxues' else '' }}">{{ p.sender }}</span>
+<h2 style="color:var(--r); font-size:13px; margin-bottom:20px;">> ACCESSING_PUBLIC_FEED...</h2>
+
+{% for p in pastes %}
+    {% set display_style = p.style %}
+    {% if p.style == 'glow-rainbow' and p.sender != 'waxues' %}
+        {% set display_style = 'glow-red' %}
+    {% endif %}
+
+    <div class="box {{ display_style }}">
+        <div style="display:flex; justify-content:space-between;">
+            <a href="/paste/{{ p.id }}" style="text-decoration:none; color:#eee; font-weight:bold;">{{ p.title }}</a>
+            <span style="font-size:10px; color:#333;">{{ p.date }}</span>
         </div>
-        <div style="position: absolute; bottom: 10px; right: 20px; font-size: 11px; color: #333;">👁 {{ p.views }}</div>
-    </a>
-    {% else %}
-    <div style="text-align: center; color: #333; margin-top: 50px;">NO_DATA_FOUND_IN_SECTOR</div>
-    {% endfor %}
-</div>
+        <div style="margin-top:8px; font-size:11px;">
+            NODE: <a href="/profile/{{ p.sender }}" class="{{ 'waxues-nick' if p.sender == 'waxues' else '' }}" style="{{ '' if p.sender == 'waxues' else 'color:#555; text-decoration:none;' }}">{{ p.sender }}</a>
+        </div>
+    </div>
+{% endfor %}
 {% endblock %}

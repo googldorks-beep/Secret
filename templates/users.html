@@ -1,16 +1,24 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2 style="text-align: center; letter-spacing: 5px;">COMMUNITY_NODES</h2>
-<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 30px;">
-    {% for u in users %}
-    <div class="paste-row glow-rainbow" style="text-align: center; padding: 20px;">
-        <img src="{{ u.avatar_url if u.avatar_url else 'https://i.imgur.com/6VBx3io.png' }}" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid #333; object-fit: cover;">
-        <div style="margin-top: 10px; font-weight: bold; font-size: 18px;">
-            <a href="/profile/{{ u.username }}" style="color: #fff; text-decoration: none;">{{ u.username }}</a>
-        </div>
-        <div style="color: lime; font-size: 10px; margin-top: 5px;">{{ u.role }}</div>
-        <div style="color: #555; font-size: 11px; margin-top: 10px; font-style: italic;">"{{ u.status }}"</div>
-    </div>
-    {% endfor %}
+<div class="box">
+    <h2 style="color: var(--r); letter-spacing: 3px;">[ REGISTERED_NODES ]</h2>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <tr style="color: #444; font-size: 12px; border-bottom: 1px solid #222;">
+            <th style="padding: 10px; text-align: left;">NODE_NAME</th>
+            <th>STATUS</th>
+            <th>XP_LEVEL</th>
+        </tr>
+        {% for user in users %}
+        <tr style="border-bottom: 1px solid #111;">
+            <td style="padding: 15px;">
+                <a href="/profile/{{ user.username }}" class="{{ 'waxues-nick' if user.username == 'waxues' else '' }}" style="text-decoration: none;">
+                    {{ user.username }}
+                </a>
+            </td>
+            <td style="text-align: center; font-size: 11px; color: #777;">{{ user.status }}</td>
+            <td style="text-align: center; color: var(--g);">{{ user.xp }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>
 {% endblock %}

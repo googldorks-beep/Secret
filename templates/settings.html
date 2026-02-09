@@ -1,15 +1,18 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>SYSTEM_CONFIG</h2>
-<form method="POST">
-    <label>AVATAR_URL (Link to image):</label>
-    <input type="text" name="av" value="{{ session.avatar }}">
-    <label>STATUS_MESSAGE:</label>
-    <input type="text" name="st" placeholder="System Operator">
-    <label>BACKGROUND_URL:</label>
-    <input type="text" name="bg" value="{{ session.bg }}">
-    <label>MUSIC_URL (.mp3):</label>
-    <input type="text" name="mu" value="{{ session.music }}">
-    <button type="submit" class="btn">SAVE_CHANGES</button>
-</form>
+<div class="box">
+    <h2>SYSTEM_EDIT // {{ u.username }}</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <label>CUSTOM_STATUS</label>
+        <input type="text" name="status" value="{{ u.status }}">
+        
+        <label>BACKGROUND_IMAGE_URL</label>
+        <input type="text" name="bg_url" value="{{ u.bg_url }}" placeholder="https://...">
+        
+        <label>AVATAR_UPLOAD</label>
+        <input type="file" name="avatar">
+        
+        <button type="submit" class="btn">APPLY_CHANGES</button>
+    </form>
+</div>
 {% endblock %}

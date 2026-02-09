@@ -1,23 +1,15 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>NEW_PASTE_ENTRY</h2>
-<form method="POST">
-    <input type="text" name="t" placeholder="ENTRY TITLE" required>
-    <textarea name="c" style="height: 300px;" placeholder="ENTER CONTENT..." required></textarea>
-    <select name="style">
-        <option value="red">NEON RED</option>
-        <option value="green">MATRIX GREEN</option>
-        <option value="blue">CYBER BLUE</option>
-        <option value="pink">HOT PINK</option>
-        <option value="gold">GOLD VIP</option>
-        <option value="toxic">TOXIC GREEN</option>
-        <option value="orange">BLOOD ORANGE</option>
-        <option value="cyan">ICE CYAN</option>
-        <option value="emerald">EMERALD</option>
-        <option value="crimson">CRIMSON</option>
-        <option value="white">GHOST WHITE</option>
-        <option value="rainbow">CORE RAINBOW</option>
-    </select>
-    <button type="submit" class="btn">EXECUTE_UPLOAD</button>
-</form>
+<div class="box glow-red">
+    <h2 style="color:var(--r)">INITIALIZE_DATA_STREAM</h2>
+    <form action="/add" method="POST">
+        <input type="text" name="t" placeholder="STREAM_TITLE" required style="width: 97%; margin-bottom: 15px;"><br>
+        <textarea name="c" placeholder="ENTER_ENCRYPTED_DATA..." required style="width: 97%; height: 200px; margin-bottom: 15px;"></textarea><br>
+        <select name="style" style="width: 100%; margin-bottom: 15px;">
+            <option value="glow-red">RED_GLOW</option>
+            <option value="glow-rainbow">RAINBOW_INNER_BURN</option>
+        </select>
+        <button type="submit" style="background:var(--r); color:#fff; border:none; padding:15px; width:100%; cursor:pointer; font-weight:bold;">EXECUTE_PUSH</button>
+    </form>
+</div>
 {% endblock %}

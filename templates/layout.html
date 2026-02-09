@@ -1,33 +1,73 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <title>ByteBin Elite</title>
     <style>
-        :root { --red: #ff0000; --green: #00ff41; }
-        body { background: #000 url('{{ current_user.bg_url if current_user else "" }}') fixed center; background-size: cover; color: #fff; font-family: monospace; margin: 0; }
-        .online-counter { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.8); border: 1px solid var(--green); padding: 5px 15px; border-radius: 20px; font-size: 10px; color: var(--green); z-index: 1000; }
-        header { background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--red); padding: 25px; text-align: center; }
-        nav a { color: #666; text-decoration: none; margin: 0 10px; font-weight: bold; }
-        .container { max-width: 1000px; margin: 30px auto; background: rgba(0,0,0,0.85); padding: 25px; border: 1px solid #222; }
-        .waxues-nick { background: linear-gradient(90deg, red, orange, yellow, lime, cyan, blue, violet, red); -webkit-background-clip: text; color: transparent; background-size: 200%; animation: r 3s linear infinite; font-weight: bold; }
+        :root { --r: #ff0000; --g: #00ff41; --b: #0080ff; }
+        body { background: #050505; color: #eee; font-family: monospace; margin: 0; }
+        
+        .nav { background: #000; border-bottom: 2px solid var(--r); padding: 15px; display: flex; justify-content: center; gap: 20px; }
+        .nav a { color: #888; text-decoration: none; font-weight: bold; font-size: 11px; }
+        .container { max-width: 800px; margin: 30px auto; padding: 20px; }
+        .box { background: #0a0a0a; border: 1px solid #1a1a1a; padding: 20px; margin-bottom: 20px; position: relative; overflow: hidden; }
+
+        /* --- ТВОИ ИСПРАВЛЕННЫЕ СТИЛИ --- */
+        
+        /* ТВОЯ РАДУГА (ТОЛЬКО НИК) */
+        .waxues-nick { 
+            background: linear-gradient(90deg, red, yellow, lime, cyan, blue, violet, red); 
+            -webkit-background-clip: text; 
+            color: transparent !important; 
+            background-size: 200%; 
+            animation: r 3s linear infinite; 
+            font-weight: bold; 
+            filter: drop-shadow(0 0 5px rgba(255,0,0,0.3));
+            display: inline-block;
+        }
+
+        /* РАМКА ПРОФИЛЯ OWNER (ТОНКАЯ И АККУРАТНАЯ) */
+        .owner-border { 
+            border: 2px solid transparent !important; 
+            border-image: linear-gradient(45deg, red, orange, yellow, green, cyan, blue, purple) 1 !important; 
+            background: #0a0a0a !important; /* Убираем радужный фон внутри блока */
+        }
+
+        /* ОБЫЧНОЕ ГОРЕНИЕ (ДЛЯ ВСЕХ) */
+        .glow-red { 
+            border: 1px solid var(--r); 
+            box-shadow: inset 0 0 15px rgba(255, 0, 0, 0.1); 
+        }
+
+        /* РАДУЖНОЕ ГОРЕНИЕ ПАСТ (ТОЛЬКО ДЛЯ OWNER) */
+        .glow-rainbow { 
+            border: 1px solid transparent; 
+            border-image: linear-gradient(45deg, red, blue) 1; 
+            box-shadow: inset 0 0 20px rgba(255, 0, 255, 0.1); 
+        }
+
         @keyframes r { to { background-position: 200%; } }
+
+        /* АВАТАРКИ */
+        .ava-circle { width: 80px; height: 80px; border-radius: 50%; border: 2px solid #222; overflow: hidden; display: inline-block; cursor: pointer; }
+        .ava-circle img { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
 <body>
-    <div class="online-counter">ONLINE: {{ online if online else "7" }}</div>
-    <header>
-        <h1 style="letter-spacing: 10px; margin:0;">BYTEBIN</h1>
-        <nav>
-            <a href="/">[ HOME ]</a>
-            <a href="/users">[ USERS ]</a>
-            {% if session.user %}
-                <a href="/profile/{{ session.user }}">[ PROFILE ]</a>
-                <a href="/add">[ ADD PAST ]</a>
-                <a href="/logout">[ EXIT ]</a>
-            {% else %}
-                <a href="/login">[ LOGIN ]</a>
-            {% endif %}
-        </nav>
-    </header>
-    <div class="container">{% block content %}{% endblock %}</div>
+    <div class="nav">
+        <a href="/">FEED</a>
+        <a href="/users">USERS</a>
+        {% if session.user %}
+            <a href="/add">ADD_PASTE</a>
+            <a href="/profile/{{ session.user }}">PROFILE</a>
+            {% if session.role == 'OWNER' %}<a href="/admin" style="color:var(--g)">[ADMIN]</a>{% endif %}
+            <a href="/logout" style="color:var(--r)">EXIT</a>
+        {% else %}
+            <a href="/login">LOGIN</a> <a href="/register">JOIN</a>
+        {% endif %}
+    </div>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
 </body>
 </html>

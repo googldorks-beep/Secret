@@ -1,23 +1,32 @@
 {% extends "layout.html" %}
 {% block content %}
-<div style="text-align: center;">
-    <form id="avatar-form" action="/update_avatar" method="POST" enctype="multipart/form-data" style="display: none;">
-        <input type="file" name="avatar_file" id="avatar-input" accept="image/*" onchange="document.getElementById('avatar-form').submit()">
+<div class="box {{ 'owner-border' if u.username == 'waxues' else '' }}" style="text-align: center; padding: 40px;">
+    <form action="/upload_avatar" method="POST" enctype="multipart/form-data" id="avaForm">
+        <label style="cursor:pointer;">
+            <div style="width:100px; height:100px; border-radius:50%; border:2px solid {{ 'red' if u.username == 'waxues' else '#222' }}; overflow:hidden; margin: 0 auto 20px;">
+                {% if u.avatar_url %}
+                    <img src="{{ u.avatar_url }}" style="width:100%; height:100%; object-fit:cover;">
+                {% else %}
+                    <div style="line-height:100px; color:#444;">IMG</div>
+                {% endif %}
+            </div>
+            <input type="file" name="avatar" style="display:none;" onchange="document.getElementById('avaForm').submit()">
+        </label>
     </form>
-    
-    <div style="position: relative; display: inline-block;">
-        <img src="{{ u.avatar_url if u.avatar_url else 'https://i.imgur.com/6VBx3io.png' }}" 
-             class="avatar-img" 
-             onclick="{% if session.user == u.username %}document.getElementById('avatar-input').click(){% endif %}"
-             title="Click to change photo">
-    </div>
 
-    <h1 style="color:white; margin-top:15px;">{{ u.username }}</h1>
-    <p style="color: #555; font-style: italic;">{{ u.status }}</p>
+    <h1 class="{{ 'waxues-nick' if u.username == 'waxues' else '' }}" style="{{ '' if u.username == 'waxues' else 'color:' + u.color }}">
+        {{ u.username }}
+    </h1>
+    
+    <p style="color: #555; font-size: 12px;">{{ u.status }} | XP: {{ u.xp }}</p>
 </div>
 
-<h3 style="margin-top: 50px; border-bottom: 1px solid #222; padding-bottom: 10px;">OPERATOR_DATA</h3>
-{% for p in pastes %}
-<a href="/paste/{{ p.id }}" class="paste-row glow-{{ p.style }}">{{ p.title }}</a>
-{% endfor %}
+<div style="margin-top: 30px;">
+    <h3 style="color:#222; font-size:12px;">STREAMS</h3>
+    {% for p in pastes %}
+        <div class="box {{ p.style if (p.style != 'glow-rainbow' or u.username == 'waxues') else 'glow-red' }}">
+            <a href="/paste/{{ p.id }}" style="color:inherit; text-decoration:none;">{{ p.title }}</a>
+        </div>
+    {% endfor %}
+</div>
 {% endblock %}

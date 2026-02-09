@@ -1,34 +1,27 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="paste-row glow-{{ p.style }}" style="cursor: default;">
-    <h1 style="margin: 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">{{ p.title }}</h1>
-    <div style="font-size: 12px; color: #555; margin: 10px 0;">
-        OPERATOR: <span class="{{ 'waxues-nick' if p.sender == 'waxues' else '' }}">{{ p.sender }}</span> | VIEWS: {{ p.views }}
+<div class="box {{ p.style }}">
+    <h2 style="margin:0;">{{ p.title }}</h2>
+    <p style="font-size:10px; color:#555;">SENDER: {{ p.sender }} | DATE: {{ p.date }}</p>
+    <div style="background:rgba(0,0,0,0.5); padding:15px; border:1px solid #222; white-space:pre-wrap;">{{ p.content }}</div>
+    
+    <div style="margin-top:15px;">
+        <a href="/action/{{ p.id }}/like" style="text-decoration:none;">👍 {{ p.likes }}</a>
+        <a href="/action/{{ p.id }}/dis" style="text-decoration:none; margin-left:15px;">👎 {{ p.dislikes }}</a>
     </div>
-    <div style="background: rgba(0,0,0,0.5); padding: 20px; white-space: pre-wrap; font-family: 'Courier New'; border-radius: 4px; border: 1px solid rgba(255,255,255,0.05);">{{ p.content }}</div>
 </div>
 
-<div style="margin-top: 20px; display: flex; gap: 20px;">
-    <a href="/vote/{{ p.id }}/up" style="color: #00ff41; text-decoration: none; font-weight: bold;">[ LIKE: {{ p.likes }} ]</a>
-    <a href="/vote/{{ p.id }}/down" style="color: #ff0000; text-decoration: none; font-weight: bold;">[ DISLIKE: {{ p.dislikes }} ]</a>
-</div>
-
-<div style="margin-top: 40px;">
-    <h3>COMMENTS</h3>
-    {% if session.user %}
-    <form method="POST" action="/paste/{{ p.id }}">
-        <textarea name="comment" placeholder="Write a comment..." required style="height: 80px;"></textarea>
-        <button type="submit" class="btn" style="width: 150px;">SEND</button>
-    </form>
-    {% endif %}
-
-    <div style="margin-top: 20px;">
-        {% for c in comments %}
-        <div style="border-left: 2px solid var(--red); padding-left: 15px; margin-bottom: 15px; background: rgba(255,255,255,0.02); padding: 10px;">
-            <b style="color: var(--red);">{{ c.sender }}</b>: 
-            <span style="color: #ccc;">{{ c.text }}</span>
+<div class="box">
+    <h4 style="color:#444; margin-bottom:10px;">COMMENTS</h4>
+    {% for c in p.comments %}
+        <div class="comment-box" style="background:#020202; border-left:3px solid var(--r); padding:10px; margin-bottom:5px;">
+            <b style="color:var(--b);">{{ c.u }}</b>: {{ c.t }} 
+            <i style="font-size:9px; color:#333; float:right;">{{ c.time }}</i>
         </div>
-        {% endfor %}
-    </div>
+    {% endfor %}
+    <form action="/comment/{{ p.id }}" method="POST" style="margin-top:15px; display:flex;">
+        <input type="text" name="txt" placeholder="WRITE_COMMENT..." required style="flex-grow:1; background:#000; color:var(--g); border:1px solid #222; padding:10px;">
+        <button type="submit" style="background:var(--r); color:#fff; border:none; padding:10px 20px; cursor:pointer;">SEND</button>
+    </form>
 </div>
 {% endblock %}
